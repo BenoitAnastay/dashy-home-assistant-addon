@@ -3,4 +3,3 @@ build_from:
   aarch64: lissy93/dashy:latest
   amd64: lissy93/dashy:latest
   armv7: lissy93/dashy:latest
-  i386: lissy93/dashy:latest
