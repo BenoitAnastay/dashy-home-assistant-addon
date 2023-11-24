@@ -10,6 +10,9 @@ stage: experimental
 arch:
   - aarch64
   - amd64
+  - armhf
+  - armv7
+  - i386
 startup: services
 ports:
   80/tcp: 8000
