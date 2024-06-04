@@ -1,0 +1,13 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# Benoit Anastay Add-on: Dashy
+# Run Dashy
+# ==============================================================================
+
+USER_DATA_DIR=/config/
+exprt USER_DATA_DIR
+echo -n "${USER_DATA_DIR}" > /var/run/s6/container_environment/USER_DATA_DIR
+
+cd /usr/src/dashy || exit
+yarn start

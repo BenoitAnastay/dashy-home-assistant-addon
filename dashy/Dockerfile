@@ -1,4 +1,4 @@
-ARG BUILD_FROM=lissy93/dashy:latest
+ARG BUILD_FROM=ghcr.io/hassio-addons/base:16.0.0
 # hadolint ignore=DL3006
 FROM ${BUILD_FROM}
 
@@ -33,71 +33,22 @@ ARG BUILD_ARCH=amd64
 ARG BASHIO_VERSION="v0.16.2"
 ARG S6_OVERLAY_VERSION="3.1.6.2"
 ARG TEMPIO_VERSION="2021.09.0"
-RUN \
-    set -o pipefail \
-    \
-    && apk add --no-cache --virtual .build-dependencies \
-        tar=1.35-r2 \
-        xz=5.4.5-r0 \
-    \
+RUN set -o pipefail \
     && apk add --no-cache \
-        libcrypto3=3.1.5-r0 \
-        libssl3=3.1.5-r0	 \
-        musl-utils=1.2.4_git20230717-r4	 \
-        musl=1.2.4_git20230717-r4 \
-    \
-    && apk add --no-cache \
-        bash=5.2.21-r0 \
-        curl=8.5.0-r0 \
-        jq=1.7.1-r0 \
-        tzdata=2024a-r0 \
-    \
-    && S6_ARCH="${BUILD_ARCH}" \
-    && if [ "${BUILD_ARCH}" = "i386" ]; then S6_ARCH="i686"; \
-    elif [ "${BUILD_ARCH}" = "amd64" ]; then S6_ARCH="x86_64"; \
-    elif [ "${BUILD_ARCH}" = "armv7" ]; then S6_ARCH="arm"; fi \
-    \
-    && curl -L -s "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz" \
-        | tar -C / -Jxpf - \
-    \
-    && curl -L -s "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${S6_ARCH}.tar.xz" \
-        | tar -C / -Jxpf - \
-    \
-    && curl -L -s "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-symlinks-noarch.tar.xz" \
-        | tar -C / -Jxpf - \
-    \
-    && curl -L -s "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-symlinks-arch.tar.xz" \
-        | tar -C / -Jxpf - \
-    \
-    && curl -J -L -o /tmp/bashio.tar.gz \
-        "https://github.com/hassio-addons/bashio/archive/${BASHIO_VERSION}.tar.gz" \
-    && mkdir /tmp/bashio \
-    && tar zxvf \
-        /tmp/bashio.tar.gz \
-        --strip 1 -C /tmp/bashio \
-    \
-    && mv /tmp/bashio/lib /usr/lib/bashio \
-    && ln -s /usr/lib/bashio/bashio /usr/bin/bashio \
-    \
-    && curl -L -s -o /usr/bin/tempio \
-        "https://github.com/home-assistant/tempio/releases/download/${TEMPIO_VERSION}/tempio_${BUILD_ARCH}" \
-    && chmod a+x /usr/bin/tempio \
-    \
-    && apk del --no-cache --purge .build-dependencies \
-    && rm -f -r \
-        /tmp/*
+        yarn=1.22.22-r0 \
+        git=2.45.1-r0	 \
+        nodejs=20.13.1-r0 \
+    &&  echo "Download Paperless-ngx" \
+    && curl -J -L -s -o dashy.tar.xz https://github.com/Lissy93/dashy/archive/refs/tags/3.1.1.tar.gz \
+    && tar -xf dashy.tar.xz \
+    && mv dashy /usr/src/dashy 
 
-# Entrypoint & CMD
-ENTRYPOINT ["/init"]
-
-# Finally, run start command to serve up the built application
-CMD [ "yarn", "start" ]
+WORKDIR /usr/src/dashy
+RUN yarn \
+    && yarn build
 
 # Expose the port
 EXPOSE ${PORT}
-
-# Run simple healthchecks every 5 mins, to check that everythings still great
-HEALTHCHECK --interval=5m --timeout=5s --start-period=30s CMD yarn health-check
 
 # Labels
 LABEL \

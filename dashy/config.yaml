@@ -12,8 +12,8 @@ arch:
   - amd64
   - armv7
 ports:
-  80/tcp: 8001
+  4000/tcp: 8001
 ports_description:
-  80/tcp: Web interface
+  4000/tcp: Web interface
 map:
-  - share:rw
+  - addon_config:rw
