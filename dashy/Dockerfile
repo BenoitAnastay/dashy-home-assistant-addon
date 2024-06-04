@@ -44,7 +44,7 @@ RUN set -o pipefail \
     && git clone https://github.com/Lissy93/dashy.git
 
 WORKDIR /usr/src/dashy
-RUN yarn \
+RUN yarn install --ignore-engines \
     && yarn build
 
 # Expose the port
