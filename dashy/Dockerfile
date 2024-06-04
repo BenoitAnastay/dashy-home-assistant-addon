@@ -36,12 +36,12 @@ ARG TEMPIO_VERSION="2021.09.0"
 RUN set -o pipefail \
     && apk add --no-cache \
         yarn=1.22.22-r0 \
-        git=2.45.1-r0	 \
+        git=2.45.2-r0	 \
         nodejs=20.13.1-r0 \
-    &&  echo "Download Paperless-ngx" \
+    &&  echo "Download Dashy" \
     && curl -J -L -s -o dashy.tar.xz https://github.com/Lissy93/dashy/archive/refs/tags/3.1.1.tar.gz \
-    && tar -xf dashy.tar.xz \
-    && mv dashy /usr/src/dashy 
+    && tar -xzf dashy.tar.xz \
+    && mv dashy-3.1.1 /usr/src/dashy 
 
 WORKDIR /usr/src/dashy
 RUN yarn \
