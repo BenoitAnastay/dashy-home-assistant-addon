@@ -30,36 +30,47 @@ SHELL ["/bin/ash", "-o", "pipefail", "-c"]
 
 # Install base system
 ARG BUILD_ARCH=amd64
+ARG BASHIO_VERSION="v0.16.2"
+ARG S6_OVERLAY_VERSION="3.1.6.2"
+ARG TEMPIO_VERSION="2021.09.0"
 RUN \
     set -o pipefail \
     \
     && apk add --no-cache --virtual .build-dependencies \
-        tar=1.34-r1 \
+        tar=1.35-r2 \
+        xz=5.6.1-r3 \
     \
     && apk add --no-cache \
-        libcrypto1.1=1.1.1w-r1 \
-        libssl1.1=1.1.1w-r1 \
-        musl-utils=1.2.2-r9 \
-        musl=1.2.2-r9 \
+        libcrypto3=3.3.0-r2 \
+        libssl3=3.3.0-r2 \
+        musl-utils=1.2.5-r0 \
+        musl=1.2.5-r0 \
     \
     && apk add --no-cache \
-        bash=5.1.16-r0 \
-        curl=8.4.0-r0 \
-        jq=1.6-r1 \
-        tzdata=2023c-r0 \
+        bash=5.2.26-r0 \
+        curl=8.7.1-r0 \
+        jq=1.7.1-r0 \
+        tzdata=2024a-r1 \
     \
     && S6_ARCH="${BUILD_ARCH}" \
-    && if [ "${BUILD_ARCH}" = "i386" ]; then S6_ARCH="x86"; fi \
-    && if [ "${BUILD_ARCH}" = "armv7" ]; then S6_ARCH="arm"; fi \
+    && if [ "${BUILD_ARCH}" = "i386" ]; then S6_ARCH="i686"; \
+    elif [ "${BUILD_ARCH}" = "amd64" ]; then S6_ARCH="x86_64"; \
+    elif [ "${BUILD_ARCH}" = "armv7" ]; then S6_ARCH="arm"; fi \
     \
-    && curl -L -s "https://github.com/just-containers/s6-overlay/releases/download/v2.2.0.3/s6-overlay-${S6_ARCH}.tar.gz" \
-        | tar zxvf - -C / \
+    && curl -L -s "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz" \
+        | tar -C / -Jxpf - \
     \
-    && mkdir -p /etc/fix-attrs.d \
-    && mkdir -p /etc/services.d \
+    && curl -L -s "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${S6_ARCH}.tar.xz" \
+        | tar -C / -Jxpf - \
+    \
+    && curl -L -s "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-symlinks-noarch.tar.xz" \
+        | tar -C / -Jxpf - \
+    \
+    && curl -L -s "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-symlinks-arch.tar.xz" \
+        | tar -C / -Jxpf - \
     \
     && curl -J -L -o /tmp/bashio.tar.gz \
-        "https://github.com/hassio-addons/bashio/archive/v0.14.3.tar.gz" \
+        "https://github.com/hassio-addons/bashio/archive/${BASHIO_VERSION}.tar.gz" \
     && mkdir /tmp/bashio \
     && tar zxvf \
         /tmp/bashio.tar.gz \
@@ -69,7 +80,7 @@ RUN \
     && ln -s /usr/lib/bashio/bashio /usr/bin/bashio \
     \
     && curl -L -s -o /usr/bin/tempio \
-        "https://github.com/home-assistant/tempio/releases/download/2021.09.0/tempio_${BUILD_ARCH}" \
+        "https://github.com/home-assistant/tempio/releases/download/${TEMPIO_VERSION}/tempio_${BUILD_ARCH}" \
     && chmod a+x /usr/bin/tempio \
     \
     && apk del --no-cache --purge .build-dependencies \
