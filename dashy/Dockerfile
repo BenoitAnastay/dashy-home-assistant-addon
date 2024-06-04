@@ -28,6 +28,8 @@ COPY rootfs /
 # Set shell
 SHELL ["/bin/ash", "-o", "pipefail", "-c"]
 
+WORKDIR /usr/src
+
 # Install base system
 ARG BUILD_ARCH=amd64
 ARG BASHIO_VERSION="v0.16.2"
@@ -39,9 +41,7 @@ RUN set -o pipefail \
         git=2.45.2-r0	 \
         nodejs=20.13.1-r0 \
     &&  echo "Download Dashy" \
-    && curl -J -L -s -o dashy.tar.xz https://github.com/Lissy93/dashy/archive/refs/tags/3.1.1.tar.gz \
-    && tar -xzf dashy.tar.xz \
-    && mv dashy-3.1.1 /usr/src/dashy 
+    && git clone https://github.com/Lissy93/dashy.git
 
 WORKDIR /usr/src/dashy
 RUN yarn \
