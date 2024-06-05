@@ -46,7 +46,7 @@ RUN set -o pipefail \
 WORKDIR /usr/src/dashy
 RUN yarn install --ignore-engines \
     && yarn \
-    && yarn clean cache
+    && yarn cache clean
 
 # Expose the port
 EXPOSE ${PORT}
