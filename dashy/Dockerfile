@@ -40,14 +40,17 @@ RUN set -o pipefail \
         yarn=1.22.22-r0 \
         git=2.45.2-r0	 \
         nodejs=20.13.1-r0 \
+        tzdata=2024a-r1	\
+        python3=3.12.3-r1 \
+        make=4.4.1-r2 \
+        g++=13.2.1_git20240309-r0 \
     &&  echo "Download Dashy" \
     && git clone https://github.com/Lissy93/dashy.git
 
 WORKDIR /usr/src/dashy
-RUN yarn install --ignore-engines \
-    && yarn \
-    && yarn build \
-    && yarn cache clean
+# hadolint ignore=DL3060
+RUN yarn install --ignore-engines --immutable --no-cache --network-timeout 300000 --network-concurrency 1 \
+    && yarn build --mode production --no-clean 
 
 # Expose the port
 EXPOSE ${PORT}

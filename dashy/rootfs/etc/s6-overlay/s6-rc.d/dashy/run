@@ -20,4 +20,4 @@ if ! bashio::fs.file_exists '/config/conf.yml'; then
 fi
 
 cd /usr/src/dashy || exit
-yarn start
+yarn build-and-start
